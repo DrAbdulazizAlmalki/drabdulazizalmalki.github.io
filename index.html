@@ -301,5 +301,44 @@ window.translateSite=function(){
 };
 })();
 </script>
+<script>
+(function(){
+  async function loadCMSContent(){
+    try{
+      const site=await fetch('/content/site.json?'+Date.now()).then(r=>r.json());
+      const pubs=await fetch('/content/publications/?'+Date.now()).then(()=>[]).catch(()=>[]);
+      const lang=document.documentElement.lang==='ar'?'ar':'en';
+      // Current content is maintained in English; existing language layer remains available.
+      const h=site.hero;
+      const hero=document.querySelector('#home');
+      if(hero){
+        const eyebrow=hero.querySelector('.eyebrow'); if(eyebrow) eyebrow.textContent=h.eyebrow;
+        const lead=hero.querySelector('.lead'); if(lead) lead.textContent=h.lead;
+        const btns=hero.querySelectorAll('.hero-buttons .btn'); if(btns[0]) btns[0].textContent=h.researchButton; if(btns[1]) btns[1].textContent=h.contactButton;
+        const stats=hero.querySelectorAll('.mini-stats span'); h.stats.forEach((x,i)=>{if(stats[i]) stats[i].textContent=x;});
+      }
+      const about=site.about, a=document.querySelector('#about');
+      if(a){a.querySelector('.section-kicker').textContent=about.kicker;a.querySelector('h2').textContent=about.title;a.querySelector('.section-copy > p').textContent=about.text;const cells=a.querySelectorAll('.info-grid > div');about.info.forEach((x,i)=>{if(cells[i]){cells[i].querySelector('span').textContent=x.label;cells[i].querySelector('strong').textContent=x.value;}});}
+      const edu=site.education, es=document.querySelector('#about + .section');
+      if(es){es.querySelector('.section-kicker').textContent=edu.kicker;es.querySelector('h2').textContent=edu.title;const grid=es.querySelector('.edu-grid');grid.innerHTML=edu.items.map(x=>`<article class="edu-card"><span>${x.year}</span><h3>${x.title}</h3><p>${x.institution}</p></article>`).join('');}
+      const r=site.research, rs=document.querySelector('#research');
+      if(rs){rs.querySelector('.section-kicker').textContent=r.kicker;rs.querySelector('h2').textContent=r.title;rs.querySelector('.head-note').textContent=r.note;rs.querySelector('.research-grid').innerHTML=r.items.map((x,i)=>`<article class="research-card"><span>${String(i+1).padStart(2,'0')}</span><h3>${x.title}</h3><p>${x.text}</p></article>`).join('');}
+      const ex=site.experience, xs=document.querySelector('#experience');
+      if(xs){xs.querySelector('.section-kicker').textContent=ex.kicker;xs.querySelector('h2').textContent=ex.title;xs.querySelector('.timeline').innerHTML=ex.items.map(x=>`<div><b>${x.title}</b><span>${x.text}</span></div>`).join('');}
+      const l=site.leadership, ls=document.querySelector('#leadership');
+      if(ls){ls.querySelector('.section-kicker').textContent=l.kicker;ls.querySelector('h2').textContent=l.title;ls.querySelector('.service-grid').innerHTML=l.items.map(x=>`<article><b>${x.title}</b><span>${x.text}</span></article>`).join('');}
+      const t=site.training, ts=document.querySelector('#training');
+      if(ts){ts.querySelector('.section-kicker').textContent=t.kicker;ts.querySelector('h2').textContent=t.title;ts.querySelector('.tag-list').innerHTML=t.items.map(x=>`<span>${x}</span>`).join('');}
+      const c=site.community, cs=document.querySelector('#community');
+      if(cs){cs.querySelector('.section-kicker').textContent=c.kicker;cs.querySelector('h2').textContent=c.title;cs.querySelector('.section-copy > p').textContent=c.text;cs.querySelector('.section-copy').querySelectorAll('.highlight-box').forEach((el,i)=>{if(c.items[i]){el.querySelector('strong').textContent=c.items[i].title;el.querySelector('span').textContent=c.items[i].text;}});}
+      const aw=site.awards, aws=document.querySelector('#awards');
+      if(aws){aws.querySelector('.section-kicker').textContent=aw.kicker;aws.querySelector('h2').textContent=aw.title;aws.querySelector('.award-grid').innerHTML=aw.items.map((x,i)=>`<article><span>${String(i+1).padStart(2,'0')}</span><h3>${x.title}</h3><p>${x.text}</p></article>`).join('');}
+      const ct=site.contact, cts=document.querySelector('#contact');
+      if(cts){cts.querySelector('.section-kicker').textContent=ct.kicker;cts.querySelector('h2').textContent=ct.title;cts.querySelector('.contact-box > div:first-child p:not(.section-kicker)').textContent=ct.text;const links=cts.querySelectorAll('.contact-links a');if(links[0]){links[0].href='mailto:'+ct.email;links[0].querySelector('b').textContent=ct.email;}if(links[1]){links[1].href='tel:'+ct.mobile.replace(/\s/g,'');links[1].querySelector('b').textContent=ct.mobile;}if(links[2]&&ct.orcid){links[2].href=ct.orcid;links[2].querySelector('b').textContent='ORCID profile';}if(links[3]&&ct.scholar){links[3].href=ct.scholar;links[3].querySelector('b').textContent='Google Scholar profile';}}
+    }catch(e){console.warn('CMS content not loaded:',e)}
+  }
+  window.addEventListener('DOMContentLoaded',loadCMSContent);
+})();
+</script>
 </body>
 </html>
